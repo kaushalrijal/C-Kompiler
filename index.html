@@ -9,28 +9,46 @@
       body {
         margin: 0;
         padding: 0;
+        font-family: Arial, sans-serif;
       }
       #header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px;
+        padding: 5px 10px;
         background-color: #007bff;
+        color: #fff;
+        font-size: 1.2rem;
+      }
+      #header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+      #header .btn {
+        padding: 5px 10px;
+        margin-left: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      #header .run-btn {
+        background-color: #007bff;
+        color: #fff;
+      }
+      #header .clear-btn {
+        background-color: #dc3545;
         color: #fff;
       }
       #editor-container {
         display: flex;
-        flex-direction: row;
-        height: calc(100vh - 40px);
+        flex-direction: column;
+        height: calc(100vh - 50px);
       }
       #editor {
         flex: 1;
-        height: 100%;
-        border-right: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
       }
       #output-container {
         flex: 1;
-        height: 100%;
         padding: 10px;
         box-sizing: border-box;
       }
@@ -42,24 +60,14 @@
         overflow: auto;
         font-family: monospace;
       }
-      .btn {
-        padding: 5px 10px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-      }
-      .btn:hover {
-        background-color: #0056b3;
-      }
     </style>
   </head>
   <body>
     <div id="header">
       <h1>Online C Kompiler</h1>
       <div>
-        <button class="btn" id="run">Run</button>
-        <button class="btn" id="clear">Clear</button>
+        <button class="btn run-btn" id="run">Run</button>
+        <button class="btn clear-btn" id="clear">Clear</button>
       </div>
     </div>
     <div id="editor-container">
@@ -82,13 +90,25 @@
           automaticLayout: true,
         });
 
-        window.editor = editor;
+        window.editor = editor; // Expose editor globally for debugging
 
         var runbtn = document.getElementById("run");
         var clrbtn = document.getElementById("clear");
 
         runbtn.addEventListener("click", runCode);
         clrbtn.addEventListener("click", clearEditor);
+
+        // Add key binding for Ctrl + Enter
+        editor.addAction({
+          id: "runCode",
+          label: "Run Code",
+          keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+          precondition: null,
+          keybindingContext: null,
+          contextMenuGroupId: "navigation",
+          contextMenuOrder: 1.5,
+          run: runCode,
+        });
 
         function runCode() {
           fetch(
@@ -97,7 +117,7 @@
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: "Token 95d451c5-918c-484b-a267-708f8be3c4b8",
+                Authorization: "Token 95d451c5-918c-484b-a267-708f8be3c4b8", // Replace with your Glot.io API token
               },
               body: JSON.stringify({
                 files: [
