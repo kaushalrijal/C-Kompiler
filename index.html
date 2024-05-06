@@ -90,7 +90,7 @@
           automaticLayout: true,
         });
 
-        window.editor = editor; // Expose editor globally for debugging
+        window.editor = editor;
 
         var runbtn = document.getElementById("run");
         var clrbtn = document.getElementById("clear");
@@ -117,7 +117,7 @@
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: "Token 95d451c5-918c-484b-a267-708f8be3c4b8", // Replace with your Glot.io API token
+                Authorization: "Token 95d451c5-918c-484b-a267-708f8be3c4b8",
               },
               body: JSON.stringify({
                 files: [
