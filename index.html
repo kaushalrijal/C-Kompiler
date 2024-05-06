@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online C Kompiler</title>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/loader.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+      }
+      #editor-container {
+        display: flex;
+        flex-direction: row;
+        height: calc(100vh - 40px);
+      }
+      #editor {
+        flex: 1;
+        height: 100%;
+        border-right: 1px solid #ccc;
+      }
+      #output-container {
+        flex: 1;
+        height: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      #output {
+        height: 100%;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow: auto;
+        font-family: monospace;
+      }
+      .btn {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <h1>Online C Kompiler</h1>
+      <div>
+        <button class="btn" id="run">Run</button>
+        <button class="btn" id="clear">Clear</button>
+      </div>
+    </div>
+    <div id="editor-container">
+      <div id="editor"></div>
+      <div id="output-container">
+        <div id="output"></div>
+      </div>
+    </div>
+    <script>
+      require.config({
+        paths: {
+          vs: "https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs",
+        },
+      });
+      require(["vs/editor/editor.main"], function () {
+        var editor = monaco.editor.create(document.getElementById("editor"), {
+          value: `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}`,
+          language: "c",
+          theme: "vs-dark",
+          automaticLayout: true,
+        });
+
+        window.editor = editor;
+
+        var runbtn = document.getElementById("run");
+        var clrbtn = document.getElementById("clear");
+
+        runbtn.addEventListener("click", runCode);
+        clrbtn.addEventListener("click", clearEditor);
+
+        function runCode() {
+          fetch(
+            "https://cors-anywhere.herokuapp.com/https://glot.io/api/run/c/latest",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Token 95d451c5-918c-484b-a267-708f8be3c4b8",
+              },
+              body: JSON.stringify({
+                files: [
+                  {
+                    name: "main.c",
+                    content: editor.getValue(),
+                  },
+                ],
+              }),
+            }
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("output").innerText =
+                data.stdout || data.stderr || "No output";
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              document.getElementById("output").innerText =
+                "Error: " + error.message;
+            });
+        }
+
+        function clearEditor() {
+          editor.setValue("");
+        }
+      });
+    </script>
+  </body>
+</html>
